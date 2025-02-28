@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Numa's Bookstore</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #56cfe1, #023e8a);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            position: fixed;
+            max-width: 350px;
+            max-height: 500px;
+            padding: 4rem;
+            background: #0077b6;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            right: 200px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 327px;
+            padding: 0.7rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input::placeholder {
+            color: gray;
+        }
+
+        .sign-up-button {
+            background-color: #0096c7;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 350px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .sign-in {
+            background-color: #0096c7;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            max-width: 350px;
+            margin-top: 1rem;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .sign-up-button:hover, .sign-in:hover {
+            background-color: #023047;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Register</h2>
+    <form action="/users/register" method="POST">
+        <input type="text" id="username" name="username" placeholder="Username" required>
+        <input type="email" id="email" name="email" placeholder="Email" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+
+        <button type="submit" class="sign-up-button">Sign Up</button>
+    </form>
+    <a class="sign-in" href="/users/login">Sign In</a>
+</div>
+</body>
+</html>

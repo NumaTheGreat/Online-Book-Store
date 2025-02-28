@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Catalog</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            color: #333;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #0077b6;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2rem;
+        }
+
+        .filters {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        .filters form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .filters input, .filters select, .filters button {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .filters input:focus, .filters select:focus, .filters button:focus {
+            border-color: #0077b6;
+        }
+
+        .filters input {
+            flex: 1;
+        }
+
+        .filters button {
+            padding: 10px 20px;
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease-in;
+        }
+
+        .filters button:hover {
+            background-color: #005f9a;
+        }
+
+        .table-container {
+            max-width: 1000px;
+            margin: 1rem auto;
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        table thead {
+            background-color: #0077b6;
+            color: white;
+        }
+
+        table th, table td {
+            padding: 10px 15px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #777;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/users/home">Home</a>
+    <a href="/bookCatalog">Book Catalog</a>
+    <a href="/cart/1">Shopping Cart</a>
+    <a href="/orders/history">Order History</a>
+    <a href="/users/logout">Log Out</a>
+</nav>
+
+<h1>Book Catalog</h1>
+
+<div class="filters">
+    <form id="filterForm">
+        <input type="text" id="search" name="search" placeholder="Search by Title or Author">
+        <select id="category" name="category">
+            <option value="">All Categories</option>
+            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+        </select>
+        <input type="number" id="minPrice" name="minPrice" placeholder="Min Price" step="0.01">
+        <input type="number" id="maxPrice" name="maxPrice" placeholder="Max Price" step="0.01">
+        <button id="filterButton" type="button">Filter</button>
+    </form>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="booksTable">
+        <tr th:each="book : ${books}">
+            <td th:text="${book.title}"></td> <!-- Title -->
+            <td th:text="${book.author}"></td> <!-- Author -->
+            <td th:text="${book.price}"></td> <!-- Price -->
+            <td th:text="${book.description}"></td> <!-- Description -->
+            <td th:text="${book.category}"></td> <!-- Category -->
+            <td>
+                <form th:action="@{/cart/{cartId}/add/{bookId}(cartId=${cartId}, bookId=${book.id})}" method="post">
+                    <button type="submit">Add to Cart</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+
+    </table>
+</div>
+
+<div class="loading" id="loading" style="display: none;">Loading books...</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search');
+        const categorySelect = document.getElementById('category');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const tableRows = document.querySelectorAll('#booksTable tr');
+        const filterButton = document.getElementById('filterButton');
+
+        // Function to filter books
+        function filterBySearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+
+            // Only filter based on search term
+            tableRows.forEach(row => {
+                const title = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                const author = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+
+                // Match only rows that include the search term in the title or author
+                const matchesSearch = title.includes(searchTerm) || author.includes(searchTerm);
+
+                row.style.display = matchesSearch ? '' : 'none';
+            });
+        }
+
+        function applyFilters() {
+            const selectedCategory = categorySelect.value.toLowerCase();
+            const minPrice = parseFloat(minPriceInput.value) || 0;
+            const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+
+            tableRows.forEach(row => {
+                row.style.display = '';
+            });
+
+            tableRows.forEach(row => {
+                const title = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                const author = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const price = parseFloat(row.querySelector('td:nth-child(3)').textContent.replace('$', '') || 0);
+                const category = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
+
+                const matchesCategory = selectedCategory === '' || category === selectedCategory;
+                const matchesPrice = price >= minPrice && price <= maxPrice;
+
+                if (!(matchesCategory && matchesPrice)) {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        searchInput.addEventListener('input', filterBySearch);
+        filterButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            applyFilters();
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Shopping Cart</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            color: #333;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #0077b6;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th, table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #033d73;
+            color: #fff;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:hover {
+            background-color: #e2e2e2;
+        }
+
+        button {
+            background-color: #e63946;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #cc2936;
+        }
+
+        .continue-shopping {
+            display: block;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            background-color: #0077b6;
+            color: white;
+            margin: 20px auto;
+            padding: 12px 18px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+            width: 200px;
+            margin-left: 0px;
+        }
+
+        .continue-shopping:hover {
+            background-color: #005f99;
+        }
+
+        .button-style {
+            display: block;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            background-color: #0077b6;
+            color: white;
+            margin-left: 0px;
+            padding: 12px 18px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+            width: 235px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+
+        .button-style:hover {
+            background-color: #005f99;
+        }
+
+    </style>
+</head>w
+<body>
+<nav>
+    <a href="/users/home">Home</a>
+    <a href="/bookCatalog">Book Catalog</a>
+    <a href="/cart/1">Shopping Cart</a>
+    <a href="/orders/history">Order History</a>
+    <a href="/users/logout">Log Out</a>
+</nav>
+
+<div class="container">
+    <h1>Your Shopping Cart</h1>
+
+    <div th:if="${#lists.isEmpty(items)}" class="empty-cart">
+        <p>Your cart is empty! Browse the
+            <a href="/bookCatalog" style="color: #0077b6; text-decoration: underline;">Book Catalog</a>
+            to add items.
+        </p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(items)}">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.book.title}">Book Title</td>
+            <td th:text="${item.book.author}">Author Name</td>
+            <td th:text="${item.price}">Book Price</td>
+            <td>
+                <form th:action="@{/cart/{cartId}/updateQuantity/{bookId}(cartId=${cartId}, bookId=${item.book.id})}" method="post">
+                    <input type="number" name="quantity" th:value="${item.quantity}" style="width: 50px;" min="1">
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+            <td>
+                <form th:action="@{/cart/{cartId}/remove/{bookId}(cartId=${cartId}, bookId=${item.book.id})}" method="post">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${!#lists.isEmpty(items)}" style="font-size: 1.5rem; font-weight: bold; margin-top: 20px;">
+        <p>Grand Total: <span th:text="${cartTotal != null ? #numbers.formatDecimal(cartTotal, 1, 'COMMA', 2, 'POINT') : '0.00'}">0.00</span></p>
+    </div>
+
+    <form th:action="@{/orders/{cartId}/checkout(cartId=${cartId})}" method="post">
+        <button type="submit" class="button-style">Check Out</button>
+    </form>
+
+    <a class="continue-shopping" href="/bookCatalog">Continue Shopping</a>
+</div>
+</body>
+</html>

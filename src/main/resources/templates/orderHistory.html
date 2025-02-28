@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f7f8fc;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #0077b6;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        table th {
+            background: #0077b6;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/users/home">Home</a>
+    <a href="/bookCatalog">Book Catalog</a>
+    <a href="/cart/1">Shopping Cart</a>
+    <a href="/orders/history">Order History</a>
+    <a href="/users/logout">Log Out</a>
+</nav>
+
+<div class="container">
+    <h1>Order History</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Order Date</th>
+            <th>Books</th>
+            <th>Total Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.formattedOrderDate}"></td>
+            <td>
+                <ul>
+                    <li th:each="item : ${order.items}">
+                        <span th:text="${item.book.title}"></span> -
+                        <span th:text="${item.quantity}"></span> pcs - P<span th:text="${item.price}"></span>
+                    </li>
+                </ul>
+            </td>
+            <td th:text="${order.totalPrice}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
